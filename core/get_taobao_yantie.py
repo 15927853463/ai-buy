@@ -3,6 +3,7 @@ import asyncio
 from pyppeteer import launch
 import datetime
 import time
+
 import random
 # from exe_js import js1, js2, js3, js4, js5
 # from alifunc import mouse_slide, input_time_random
@@ -10,13 +11,13 @@ import random
 width, height = 1600, 900
 
 # ==== 设定账号密码 （修改此处，指定账号密码）====
-# USERNAME = '15927853463'
-# PASSWORD = 'whyyan.1020'
-USERNAME = '15377645098'
-PASSWORD = 'wcyxfkl1234'
+USERNAME = '15927853463'
+PASSWORD = 'whyyan.1020'
+# USERNAME = '15377645098'
+# PASSWORD = 'wcyxfkl1234'
 
 # ==== 设定抢购 截止时间 （修改此处，指定抢购时间点）====
-BUY_TIME = '2020-11-16 19:59:50'
+BUY_TIME = '2020-11-15 17:15:55'
 buy_time_object = datetime.datetime.strptime(BUY_TIME, '%Y-%m-%d %H:%M:%S')
 
 now_time = datetime.datetime.now()
@@ -51,21 +52,22 @@ async def main():
     await page.type('input#fm-login-id', USERNAME)
     #password =
     await page.type('input#fm-login-password', PASSWORD)
-    time.sleep(2)
-
+    time.sleep(2.5)
     await page.click('.fm-btn')
+
     await asyncio.sleep(2)
-    await wait(page)
+    # await wait(page)
     #await asyncio.sleep(2)
     #await buy(page)
     await test(page)
-    # await asyncio.sleep(100)
+    await asyncio.sleep(100000)
 
 async def test(page):#测试从页面进入到提交订单
     print('test()')
     # url = 'https://item.taobao.com/item.htm?spm=a1z0d.6639537.1997196601.4.520a7484BZhDBa&id=5210509988'
     # url = 'https://chaoshi.detail.tmall.com/item.htm?id=20739895092&spm=a1z0k.6846577.0.0.15c326c1w9EH9B&_u=t2dmg8j26111'
-    url = 'https://chaoshi.detail.tmall.com/item.htm?id=20739895092&spm=a1z0k.7385961.1997985097.d4918997.66a926c14Y4GZs&_u=t2dmg8j26111'
+    # url = 'https://chaoshi.detail.tmall.com/item.htm?spm=a3204.arkpub201114.2904984870.1.241aRVHxRVHxjF&id=620017913203'
+    url = 'https://chaoshi.detail.tmall.com/item.htm?spm=a3204.20085333.9396952460.1.4cf054b4U8czGv&id=627324251849&locType=B2C&scm=1007.32172.190329.0.FF-hyhsfZD-627324251849_I-base_Q-2ca15bb7-2b01-4c33-8236-e6c8eeb452b2_T-ITEM_appId-22172_calibCTR-0_calibCVR-0_finalScore-0.6978095992_predCTR-0_predCVR-0.6978095992-FF&from_scene=B2C&skuId=4443916844327'
     await page.goto(url)
     await asyncio.sleep(1)#await是关键字，理解为同步的意思
     # if await page.J('#J_isku>div>dl>dd>ul>li>a'):
