@@ -10,13 +10,13 @@ import random
 width, height = 1600, 900
 
 # ==== 设定账号密码 （修改此处，指定账号密码）====
-# USERNAME = '15927853463'
-# PASSWORD = 'whyyan.1020'
-USERNAME = '15377645098'
-PASSWORD = 'wcyxfkl1234'
+USERNAME = '15927853463'
+PASSWORD = 'whyyan.1020'
+# USERNAME = '15377645098'
+# PASSWORD = 'wcyxfkl1234'
 
 # ==== 设定抢购 截止时间 （修改此处，指定抢购时间点）====
-BUY_TIME = '2020-11-14 20:39:55'
+BUY_TIME = '2020-11-15 20:39:55'
 buy_time_object = datetime.datetime.strptime(BUY_TIME, '%Y-%m-%d %H:%M:%S')
 
 now_time = datetime.datetime.now()
@@ -27,8 +27,10 @@ if now_time > buy_time_object:
 async def main():
     url = 'https://login.taobao.com/member/login.jhtml'
     browser = await launch(
-        headless=False,  #设置pyppeteer为有头模式
-        args=[f'--window-size={width},{height}', '--disable-infobars']  #设置网页大小，无监控头
+        #设置pyppeteer为有头模式
+        headless=False,
+        #设置网页大小，无监控头
+        args=[f'--window-size={width},{height}', '--disable-infobars']
     )
     #在浏览器上创建新页面
     page = await browser.newPage()
