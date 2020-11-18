@@ -3,41 +3,73 @@ import asyncio
 from pyppeteer import launch
 import datetime
 import time
-
 import random
 # from exe_js import js1, js2, js3, js4, js5
 # from alifunc import mouse_slide, input_time_random
+from core.User import User
 
 width, height = 1600, 900
-
+count = int (input("开启多少个窗口"))
 # ==== 设定账号密码 （修改此处，指定账号密码）====
-USERNAME = '15927853463'
-PASSWORD = 'whyyan.1020'
+users = list()
+i = 0
+user = User('15927853463', 'whyyan.1020')
+while i < count:
+    i += 1
+    u = User(str(input("请输入第"+str(i)+"个账号")),str(input("请输入第"+str(i)+"个密码")))
+    users.append(u)
+
 # USERNAME = '15377645098'
 # PASSWORD = 'wcyxfkl1234'
-
 # ==== 设定抢购 截止时间 （修改此处，指定抢购时间点）====
-BUY_TIME = '2020-11-15 17:15:55'
+BUY_TIME = str(input("抢购时间，例如：早上八点半就是  0830"))
+now_time = datetime.datetime.now()
+BUY_TIME = str(now_time.date())+' '+BUY_TIME[0:2]+":"+BUY_TIME[2:]+':00'
+print('抢购开始时间：'+BUY_TIME)
+#BUY_TIME = '2020-11-15 17:15:55'
 buy_time_object = datetime.datetime.strptime(BUY_TIME, '%Y-%m-%d %H:%M:%S')
 
-now_time = datetime.datetime.now()
-if now_time > buy_time_object:
-    print("当前已过抢购时间，请确认抢购时间是否填错...")
-    exit(0)
+#if now_time > buy_time_object:
+#    print("当前已过抢购时间，请确认抢购时间是否填错...")
+#    exit(0)
 
 async def main():
     url = 'https://login.taobao.com/member/login.jhtml'
+    global browser
+    global i
     browser = await launch(
         #设置pyppeteer为有头模式
         headless=False,
         #设置网页大小，无监控头
-        args=[f'--window-size={width},{height}', '--disable-infobars']
+        args=[f'--window-size={width},{height}'
+             ,'--disable-infobars'
+             #,'–disable-gpu'
+             #,'–disable-dev-shm-usage'
+             #,'–disable-setuid-sandbox'
+             #,'–no-first-run'
+             #,'–no-sandbox'
+             #,'–no-zygote'
+             #,'–single-process'
+              ]
     )
     #在浏览器上创建新页面
     pages = await browser.pages()
     page = pages[0]
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36')
     await page.setViewport({'width': width, 'height': height})
+    await asyncio.gather(*[test() for _ in range(count)])  # 开启5个窗口并发
+    await asyncio.sleep(100000)
+
+async def test():#测试从页面进入到提交订单
+    global i
+    global browser
+    i-=1
+    index = i
+    print('test('+str(index)+')')
+    page = await browser.newPage()
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36')
+    await page.setViewport({'width': width, 'height': height})
+    url = 'https://login.taobao.com/member/login.jhtml'
     await page.goto(url)
     await page.evaluate(
         '''() =>{ Object.defineProperties(navigator,{ webdriver:{ get: () => false } }) }'''
@@ -50,21 +82,13 @@ async def main():
 
     #await page.click('i#J_Quick2Static')
     #username =
-    await page.type('input#fm-login-id', USERNAME)
+    await page.type('input#fm-login-id', users[index].username)
     #password =
-    await page.type('input#fm-login-password', PASSWORD)
+    await page.type('input#fm-login-password', users[index].password)
     time.sleep(2.5)
     await page.click('.fm-btn')
 
     await asyncio.sleep(2)
-    # await wait(page)
-    #await asyncio.sleep(2)
-    #await buy(page)
-    await test(page)
-    await asyncio.sleep(100000)
-
-async def test(page):#测试从页面进入到提交订单
-    print('test()')
     # url = 'https://item.taobao.com/item.htm?spm=a1z0d.6639537.1997196601.4.520a7484BZhDBa&id=5210509988'
     # url = 'https://chaoshi.detail.tmall.com/item.htm?id=20739895092&spm=a1z0k.6846577.0.0.15c326c1w9EH9B&_u=t2dmg8j26111'
     # url = 'https://chaoshi.detail.tmall.com/item.htm?spm=a3204.arkpub201114.2904984870.1.241aRVHxRVHxjF&id=620017913203'
