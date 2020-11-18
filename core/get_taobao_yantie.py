@@ -34,7 +34,8 @@ async def main():
         args=[f'--window-size={width},{height}', '--disable-infobars']
     )
     #在浏览器上创建新页面
-    page = await browser.newPage()
+    pages = await browser.pages()
+    page = pages[0]
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36')
     await page.setViewport({'width': width, 'height': height})
     await page.goto(url)
