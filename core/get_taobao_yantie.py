@@ -54,7 +54,7 @@ async def test():#测试从页面进入到提交订单
     print('test('+str(index)+')')
     browser = await launch(
         #设置pyppeteer为有头模式
-        headless=True,
+        headless=False,
         #设置网页大小，无监控头
         args=[f'--window-size={width},{height}'
             ,'--disable-infobars'
@@ -67,7 +67,8 @@ async def test():#测试从页面进入到提交订单
               #,'–single-process'
               ]
     )
-    page = await browser.newPage()
+    pages = await browser.pages()
+    page = pages[0]
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36')
     await page.setViewport({'width': width, 'height': height})
     url = 'https://login.taobao.com/member/login.jhtml'
@@ -97,15 +98,18 @@ async def test():#测试从页面进入到提交订单
     await page.goto(url)
     await asyncio.sleep(4)#await是关键字，理解为同步的意思
 
-    if await page.J('#J_isku>div>dl>dd>ul>li>a'):
-        isku = await page.J('#J_isku>div>dl>dd>ul>li>a')
-        await isku.click() #默认选中第一个
+
     #if await page.J('.J_TSaleProp>li>a'):
     #    isku = await page.J('.J_TSaleProp>li>a')
     #    await isku.click() #默认选中第一个
-    await page.evaluate('document.querySelector("#J_IptAmount").value=""')
     #await page.evaluate('document.querySelector("#J_Amount>span>input").value=""')#运行读取js代码，清空了商品数量
     #await page.type('#J_Amount>span>input','1')
+
+
+    if await page.J('#J_isku>div>dl>dd>ul>li>a'):
+        isku = await page.J('#J_isku>div>dl>dd>ul>li>a')
+        await isku.click() #默认选中第一个
+    await page.evaluate('document.querySelector("#J_IptAmount").value=""')
     await page.type('#J_IptAmount','1')#这里是修改商品数量，暂时写死了，后面可以通过解析限购数量来获取
     await asyncio.sleep(10)
     # await page.click("#J_LinkBuy")
@@ -113,12 +117,13 @@ async def test():#测试从页面进入到提交订单
         now = datetime.datetime.now()
         if now >= buy_time_object:
             try:
-                if await page.evaluate('document.querySelector("#J_LinkBuy")'):
+                if await page.click('#J_LinkBuy'):
+
                     await page.evaluate('document.querySelector("#J_LinkBuy").click()')
                     print("进入提交订单页面")
                     print(datetime.datetime.now())
                     #await page.click('#submitOrderPC_1>div>a')
-                else:
+                elif await page.click('#J_juValid>div>.J_LinkBuy'):
                     await page.evaluate('document.querySelector("#J_juValid>div>.J_LinkBuy").click()')
                     print("进入提交订单页面")
                     print(datetime.datetime.now())
@@ -129,8 +134,10 @@ async def test():#测试从页面进入到提交订单
                         print(datetime.datetime.now())
                         break
                     except Exception as e:
+                        print("提交订单错误")
                         continue
             except Exception as e:
+                print("进入提交订单页面时出错")
                 continue
 
 
